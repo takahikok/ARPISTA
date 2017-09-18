@@ -27,15 +27,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    domparser.cpp
+    domparser.cpp \
+    childwidget.cpp \
+    childwindow.cpp
 
 HEADERS += \
         mainwindow.h \
     domparser.h \
-    tkinstrumentstat.h
+    tkinstrumentstat.h \
+    childwidget.h \
+    childwindow.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    childwidget.ui
 
 CONFIG += c++14
 

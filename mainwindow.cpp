@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
@@ -61,4 +62,11 @@ void MainWindow::Init(QTreeWidgetItem* settings)
 		ui->treeWidget_Property->insertTopLevelItem(0, item);//QTreeView０行目にitemをセット
 	}
 	return;
+}
+
+void MainWindow::createChild()
+{
+    ChildWindow *childWindow = new ChildWindow(ui->mdiArea);
+    childWindow->setAttribute(Qt::WA_DeleteOnClose);
+    childWindow->show();
 }

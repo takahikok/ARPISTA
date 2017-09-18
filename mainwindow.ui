@@ -16,13 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
-     <widget class="QMdiArea" name="mdiArea">
-      <widget class="QWidget" name="subwindow">
-       <property name="windowTitle">
-        <string>サブウィンドウ</string>
-       </property>
-      </widget>
-     </widget>
+     <widget class="QMdiArea" name="mdiArea"/>
     </item>
    </layout>
   </widget>
@@ -130,5 +124,25 @@
  <resources>
   <include location="fatcow.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_New</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createChild()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>createChild()</slot>
+ </slots>
 </ui>

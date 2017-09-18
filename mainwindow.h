@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "domparser.h"
+#include "childwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,10 +19,10 @@ public:
 	void Init(QTreeWidgetItem* settings);
 
 private slots:
-	void on_action_New_triggered();
-
+	void createChild();
 private:
 	Ui::MainWindow *ui;
 };
+
 
 #endif // MAINWINDOW_H
