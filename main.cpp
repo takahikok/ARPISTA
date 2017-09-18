@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	w.Init(&settings);
 	w.show();
 
-	TKQXMLUtility::SaveXMLFile("C:\\Users\\user\\Documents\\ARPISTA\\settings_out.xml",
+	TKQXMLUtility::SaveXMLFile("C:\\Users\\user\\Documents\\ARPISTA\\settings_gitignore.xml",
 			      doc);
 	return a.exec();
 }

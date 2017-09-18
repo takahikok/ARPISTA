@@ -1,0 +1,5 @@
+/icon/fc32/*.png
+/icon/fc16/*.png
+*.db
+~*
+*_gitignore.*
