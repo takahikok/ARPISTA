@@ -13,7 +13,19 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <widget class="QMdiArea" name="mdiArea">
+      <widget class="QWidget" name="subwindow">
+       <property name="windowTitle">
+        <string>サブウィンドウ</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -31,6 +43,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_New"/>
+   <addaction name="action_OpenLocal"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget_Log">
@@ -90,8 +104,31 @@
     </layout>
    </widget>
   </widget>
+  <action name="action_New">
+   <property name="icon">
+    <iconset resource="fatcow.qrc">
+     <normaloff>:/icon/fc32/page_white.png</normaloff>:/icon/fc32/page_white.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_OpenLocal">
+   <property name="icon">
+    <iconset resource="fatcow.qrc">
+     <normaloff>:/icon/fc32/folder.png</normaloff>:/icon/fc32/folder.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;OpenLocal</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="fatcow.qrc"/>
+ </resources>
  <connections/>
 </ui>

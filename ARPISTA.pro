@@ -31,7 +31,8 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    domparser.h
+    domparser.h \
+    tkinstrumentstat.h
 
 FORMS += \
         mainwindow.ui
@@ -40,3 +41,6 @@ CONFIG += c++14
 
 DISTFILES += \
     settings.xml
+
+RESOURCES += \
+    fatcow.qrc

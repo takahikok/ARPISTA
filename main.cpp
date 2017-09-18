@@ -5,7 +5,12 @@
 #include <QDebug>
 #include "domparser.h"
 
-void Init(auto* w);
+#include <qxml.h>
+#include <qdom.h>
+#include <QTreeWidget>
+#include <QMessageBox>
+
+void Init(auto& w);
 
 int main(int argc, char *argv[])
 {
@@ -13,24 +18,24 @@ int main(int argc, char *argv[])
 
 	MainWindow w;
 
-	QFile file("C:\\Users\\user\\Documents\\ARPISTA\\settings.xml");
-	file.open(QFile::ReadOnly | QFile::Text);
-	QTreeWidgetItem settings;// = new QTreeWidgetItem();
-	DomParser(&file, &settings);
+	QDomDocument doc;
+	TKQXMLUtility::LoadXMLFile("C:\\Users\\user\\Documents\\ARPISTA\\settings.xml",
+			      doc);
+	QTreeWidgetItem settings;
+	DomParser(doc, &settings);
 
-	::Init(&settings);
+//	::Init(doc);
 
 	w.Init(&settings);
 	w.show();
 
+	TKQXMLUtility::SaveXMLFile("C:\\Users\\user\\Documents\\ARPISTA\\settings_out.xml",
+			      doc);
 	return a.exec();
 }
 
-void Init(auto* w)
+void Init(auto& doc)
 {
-//	QString filePath = QFileDialog::getOpenFileName(this,
-//			    tr("Open XML"), "/", tr("XML Files (*.xml)"));
-
 
 	return;
 }

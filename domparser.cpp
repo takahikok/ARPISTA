@@ -1,23 +1,8 @@
 #include "domparser.h"
 
-DomParser::DomParser(QIODevice *device, QTreeWidgetItem *tree)
+DomParser::DomParser(QDomDocument &doc, QTreeWidgetItem *tree)
 {
 	treeWidget = tree;
-	QString errorStr;
-	int errorLine;
-	int errorColumn;
-	QDomDocument doc;
-
-	if (!doc.setContent(device, true, &errorStr, &errorLine,
-			&errorColumn)) {
-		QMessageBox::warning(0, QObject::tr("DOM Parser"),
-					 QObject::tr("Parse error at line %1, "
-						 "column %2:\n%3")
-					 .arg(errorLine)
-					 .arg(errorColumn)
-					 .arg(errorStr));
-		return;
-	}
 
 	QDomElement root = doc.documentElement();
 
@@ -28,7 +13,7 @@ DomParser::DomParser(QIODevice *device, QTreeWidgetItem *tree)
 	     !node.isNull();
 	     node = node.nextSibling()) {
 		if (node.toElement().tagName() == "entry")
-			parseEntry(node.toElement(), 0);
+			parseEntry(node.toElement(), tree);
 
 	}
 }
@@ -67,4 +52,25 @@ void DomParser::parseEntry(const QDomElement &element,
 			}
 		}
 	}
+}
+
+void TKQXMLUtility::LoadXMLFile(const QString& file_path, QDomDocument& doc)
+{
+	QFile file(file_path);
+
+	file.open(QFile::ReadOnly | QFile::Text);
+	doc.setContent(&file, true);
+	return;
+}
+
+void TKQXMLUtility::SaveXMLFile(const QString& file_path, QDomDocument& doc)
+{
+	QFile file(file_path);
+
+	if (file.open(QFile::WriteOnly| QFile::Truncate)) {
+		const int indent_space_width = 4;
+		QTextStream out(&file);
+		doc.save(out, indent_space_width);
+	}
+	return;
 }
