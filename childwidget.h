@@ -2,6 +2,7 @@
 #define CHILDWIDGET_H
 
 #include <QWidget>
+#include "plotrawwidget.h"
 
 namespace Ui {
 class ChildWidget;
@@ -17,6 +18,7 @@ public:
 
 private:
 	Ui::ChildWidget *ui;
+	PlotRawWidget *widget;
 };
 
 #endif // CHILDWIDGET_H
