@@ -29,23 +29,20 @@ SOURCES += \
         mainwindow.cpp \
     domparser.cpp \
     childwidget.cpp \
-    childwindow.cpp \
-    plotrawwidget.cpp
+    childwindow.cpp
 
 HEADERS += \
         mainwindow.h \
     domparser.h \
     tkinstrumentstat.h \
     childwidget.h \
-    childwindow.h \
-    plotrawwidget.h
+    childwindow.h
 
 FORMS += \
         mainwindow.ui \
     childwidget.ui
 
 CONFIG += c++14
-CONFIG += qwt
 
 DISTFILES += \
     settings.xml

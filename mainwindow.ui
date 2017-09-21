@@ -114,19 +114,6 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionStackSubWindow"/>
-   <addaction name="actionTileSubWindow"/>
-  </widget>
   <action name="action_New">
    <property name="icon">
     <iconset resource="fatcow.qrc">
@@ -148,24 +135,6 @@
     <string>&amp;OpenLocal</string>
    </property>
   </action>
-  <action name="actionStackSubWindow">
-   <property name="icon">
-    <iconset resource="fatcow.qrc">
-     <normaloff>:/icon/fc32/application_cascade.png</normaloff>:/icon/fc32/application_cascade.png</iconset>
-   </property>
-   <property name="text">
-    <string>StackSubWindow</string>
-   </property>
-  </action>
-  <action name="actionTileSubWindow">
-   <property name="icon">
-    <iconset resource="fatcow.qrc">
-     <normaloff>:/icon/fc32/application_tile_vertical.png</normaloff>:/icon/fc32/application_tile_vertical.png</iconset>
-   </property>
-   <property name="text">
-    <string>TileSubWindow</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -185,38 +154,6 @@
     <hint type="destinationlabel">
      <x>399</x>
      <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionStackSubWindow</sender>
-   <signal>triggered()</signal>
-   <receiver>mdiArea</receiver>
-   <slot>cascadeSubWindows()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>200</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionTileSubWindow</sender>
-   <signal>triggered()</signal>
-   <receiver>mdiArea</receiver>
-   <slot>tileSubWindows()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>200</y>
     </hint>
    </hints>
   </connection>
