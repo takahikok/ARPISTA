@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "plotrawwidget.h"
+#include <vector>
 
 namespace Ui {
 class ChildWidget;
@@ -18,7 +19,7 @@ public:
 
 private:
 	Ui::ChildWidget *ui;
-	PlotRawWidget *widget;
+	std::vector<PlotRawWidget*> plotRawWidget;
 };
 
 #endif // CHILDWIDGET_H

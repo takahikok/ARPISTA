@@ -5,14 +5,21 @@ ChildWidget::ChildWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::ChildWidget)
 {
+	// init child widget
 	ui->setupUi(this);
 
-	QVBoxLayout *verticalLayout_3;
-	verticalLayout_3 = new QVBoxLayout(ui->scrollAreaWidgetContents);
+	// tab_1
 
-	widget = new PlotRawWidget(ui->scrollAreaWidgetContents);
-	widget->setObjectName(QStringLiteral("widget"));
-	verticalLayout_3->addWidget(widget);
+	// tab_1 vertical layout
+	QVBoxLayout *verticalLayout;
+	verticalLayout = new QVBoxLayout(ui->scrollAreaWidgetContents);
+
+	// raw plots
+	for (int i = 0; i < 3; i++) {
+		plotRawWidget.push_back(new PlotRawWidget(ui->scrollAreaWidgetContents));
+		plotRawWidget[i]->setObjectName(QStringLiteral("widget"));
+		verticalLayout->addWidget(plotRawWidget[i]);
+	}
 }
 
 ChildWidget::~ChildWidget()
