@@ -10,7 +10,6 @@
 #include <QTreeWidget>
 #include <QMessageBox>
 
-void Init(auto& w);
 
 int main(int argc, char *argv[])
 {
@@ -32,10 +31,4 @@ int main(int argc, char *argv[])
 	TKQXMLUtility::SaveXMLFile("C:\\Users\\user\\Documents\\ARPISTA\\settings_gitignore.xml",
 			      doc);
 	return a.exec();
-}
-
-void Init(auto& doc)
-{
-
-	return;
 }

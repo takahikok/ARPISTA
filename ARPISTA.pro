@@ -30,7 +30,11 @@ SOURCES += \
     domparser.cpp \
     childwidget.cpp \
     childwindow.cpp \
-    plotrawwidget.cpp
+    plotrawwidget.cpp \
+    tkadc.cpp \
+    tkadcinfo.cpp \
+    tkshotinfo.cpp \
+    tmctlqt.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,12 +42,17 @@ HEADERS += \
     tkinstrumentstat.h \
     childwidget.h \
     childwindow.h \
-    plotrawwidget.h
+    plotrawwidget.h \
+    tkadc.h \
+    tkadcinfo.h \
+    tkshotinfo.h \
+    tmctlqt.h
 
 FORMS += \
         mainwindow.ui \
     childwidget.ui
 
+CONFIG += c++11
 CONFIG += c++14
 CONFIG += qwt
 
@@ -52,3 +61,10 @@ DISTFILES += \
 
 RESOURCES += \
     fatcow.qrc
+
+unix|win32: LIBS += -L$$PWD/./ -ltmctl
+
+INCLUDEPATH += $$PWD/.
+DEPENDPATH += $$PWD/.
+
+LIBS += C:/Users/user/Documents/ARPISTA/tmctl.lib

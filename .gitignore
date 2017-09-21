@@ -3,3 +3,6 @@
 *.db
 ~*
 *_gitignore.*
+*.lnk
+*.dll
+*.lib

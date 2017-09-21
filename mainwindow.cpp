@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -65,12 +65,31 @@ void MainWindow::Init(QTreeWidgetItem* settings)
 	return;
 }
 
-void MainWindow::createChild()
+ChildWindow* MainWindow::createChild()
 {
-    ChildWindow *childWindow = new ChildWindow(ui->mdiArea);
-    childWindow->setAttribute(Qt::WA_DeleteOnClose);
-    childWindow->setWindowState(Qt::WindowMaximized);
-    childWindow->show();
+	ChildWindow *childWindow = new ChildWindow(ui->mdiArea);
+	childWindow->setAttribute(Qt::WA_DeleteOnClose);
+	childWindow->setWindowState(Qt::WindowMaximized);
+	childWindow->show();
+	return childWindow;
+}
+
+ChildWindow* MainWindow::createChildandOpenLocal()
+{
+	QString selFilter = "shot information(*.txt)";
+	QString caption = "open local file";
+	QString dir = "C:/Qt/Qt5.3.2";
+	QString filter = "all(*.*);;shot information(*.xml);;ソース(*.h *.cpp)";
+	QString fileName = QFileDialog::getOpenFileName(
+				this, caption, dir, filter, &selFilter,
+				QFileDialog::DontUseCustomDirectoryIcons
+				);
+
+	if (fileName.isEmpty())
+		return nullptr;
+
+	ChildWindow *childWindow = MainWindow::createChild();
+	return childWindow;
 }
 
 void MainWindow::maximizeSubWindows()

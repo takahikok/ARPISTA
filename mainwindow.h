@@ -19,7 +19,8 @@ public:
 	void Init(QTreeWidgetItem* settings);
 
 private slots:
-	void createChild();
+	ChildWindow* createChild();
+	ChildWindow* createChildandOpenLocal();
 	void maximizeSubWindows();
 	void tileSubWindowsVertically();
 	void tileSubWindowsHorizontally();
