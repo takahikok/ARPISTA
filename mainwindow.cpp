@@ -53,7 +53,7 @@ void MainWindow::Init(QTreeWidgetItem* settings)
 
 //		QTreeWidgetItem *item = new QTreeWidgetItem;//セットするアイテム
 		QTreeWidgetItem *item = settings->clone();
-		QTreeWidgetItem *child = new QTreeWidgetItem;//itemの子となるアイテム
+//		QTreeWidgetItem *child = new QTreeWidgetItem;//itemの子となるアイテム
 
 //		item->setText(0,"item");//0列目に"item"というテキストセット
 //		item->setText(1,"1");//1列目に"1"というテキストセット
@@ -69,5 +69,6 @@ void MainWindow::createChild()
 {
     ChildWindow *childWindow = new ChildWindow(ui->mdiArea);
     childWindow->setAttribute(Qt::WA_DeleteOnClose);
+    childWindow->setWindowState(Qt::WindowMaximized);
     childWindow->show();
 }
