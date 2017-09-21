@@ -23,6 +23,7 @@ private slots:
 	void maximizeSubWindows();
 	void tileSubWindowsVertically();
 	void tileSubWindowsHorizontally();
+	void test();
 
 private:
 	Ui::MainWindow *ui;

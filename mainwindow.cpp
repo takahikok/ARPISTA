@@ -72,3 +72,47 @@ void MainWindow::createChild()
     childWindow->setWindowState(Qt::WindowMaximized);
     childWindow->show();
 }
+
+void MainWindow::maximizeSubWindows()
+{
+	if (ui->mdiArea->subWindowList().isEmpty())
+	    return;
+
+	for (QMdiSubWindow *childWindow : ui->mdiArea->subWindowList()) {
+		childWindow->setWindowState(Qt::WindowMaximized);
+	}
+}
+
+void MainWindow::tileSubWindowsVertically()
+{
+	if (ui->mdiArea->subWindowList().isEmpty())
+	    return;
+
+	QPoint position(0, 0);
+	for (QMdiSubWindow *childWindow : ui->mdiArea->subWindowList()) {
+	    QRect rect(0, 0, ui->mdiArea->width(),
+		       ui->mdiArea->height() / ui->mdiArea->subWindowList().count());
+	    childWindow->setGeometry(rect);
+	    childWindow->move(position);
+	    position.setY(position.y() + childWindow->height());
+	}
+}
+
+void MainWindow::tileSubWindowsHorizontally()
+{
+	if (ui->mdiArea->subWindowList().isEmpty())
+	    return;
+	QPoint position(0, 0);
+	for (QMdiSubWindow *childWindow : ui->mdiArea->subWindowList()) {
+	    QRect rect(0, 0, ui->mdiArea->width() / ui->mdiArea->subWindowList().count(),
+		       ui->mdiArea->height());
+	    childWindow->setGeometry(rect);
+	    childWindow->move(position);
+	    position.setX(position.x() + childWindow->width());
+	}
+}
+
+void MainWindow::test()
+{
+
+}
