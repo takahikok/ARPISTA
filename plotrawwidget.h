@@ -1,0 +1,4 @@
+#ifndef PLOTRAWWIDGET_H
+#define PLOTRAWWIDGET_H
+
+#endif // PLOTRAWWIDGET_H
