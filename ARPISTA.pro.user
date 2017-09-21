@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
+<<<<<<< HEAD
 <!-- Written by QtCreator 4.4.0, 2017-09-21T21:09:11. -->
+=======
+<<<<<<< HEAD
+<!-- Written by QtCreator 4.4.0, 2017-09-21T11:09:25. -->
+=======
+<!-- Written by QtCreator 4.4.0, 2017-09-18T21:05:56. -->
+>>>>>>> parent of 877f6a6... tile MDI sub window, qwt test
+>>>>>>> 94cb0154b833e937e39a6f9e7ee74247b49fc679
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -529,7 +537,7 @@
      <value type="int">13</value>
      <value type="int">14</value>
     </valuelist>
-    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">ARPISTA</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
