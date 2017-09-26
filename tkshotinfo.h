@@ -22,7 +22,9 @@
 
 #define NATIVE_ENDIAN TKDATA::BYTEORDER::LITTLE_ENDIAN
 
-
+#include <QDebug>
+#include <QMessageBox>
+#include <QString>
 //#define TKSI_ADC_MAX 
 
 /**
@@ -130,6 +132,12 @@ private:
 	*/
 	int traceNameToCHNumber(std::string trace_name);
 
+	//! point data (ARPISTA)
+	//! [0]:time, [1]:CH1, ... データはeveryだけ間引かれている
+	std::vector<std::vector<double> > points;
+	unsigned int every;
+//	bool is_empty;
+
 public:
 	TKDATA()
 	{
@@ -224,6 +232,69 @@ public:
 		return CHData[trace_index].ch_number;
 	}
 
+	//! ARPISTA
+	std::vector<std::vector<double> >* GetDataPointsPtr()
+	{
+		return &points;
+	}
+	unsigned int SetEvery(unsigned int const every_)
+	{
+		return every = every_;
+	}
+	unsigned int GetEvery()
+	{
+		return every;
+	}
+	unsigned int LoadDataPoints(unsigned int start_position, unsigned int every, unsigned int point_number)
+	{
+//		points = std::vector<std::vector<double> >(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
+		if (point_number > static_cast<unsigned int>(this->GetBlockSize()))
+			point_number = this->GetBlockSize();
+
+		points.resize(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
+
+		std::ifstream ifsRawBin;
+		ifsRawBin.open(this->GetDataFileName() + ".WVF", std::ios::in | std::ios::binary );
+
+		// time axis
+		for (unsigned int j = 0; j < point_number; j++)
+			points[0][j] = this->GetHOffset() + this->GetHResolution() * (start_position + (every + 1) * j);
+
+		// for IS2
+		for (unsigned int i = 0; i < static_cast<unsigned int>(this->GetTraceTotalNumber()); i++) {
+			unsigned int sp;
+			unsigned char bytes[2];
+			unsigned short decoded_integer;
+			sp = this->GetDataOffset() + (this->GetBlockSize() * i) * 2;
+
+			for (unsigned int j = 0;
+			     j < static_cast<unsigned int>(point_number) && j < static_cast<unsigned int>(this->GetBlockSize() / 2);
+			     j++) {
+				ifsRawBin.seekg(sp + (start_position + (every + 1) * j) * 2, std::ios::beg);
+				ifsRawBin.read(reinterpret_cast<char*>(bytes), 2);
+				switch (this->GetByteOrder()) {
+				case TKDATA::BYTEORDER::BIG_ENDIAN:
+					decoded_integer = bytes[0] << 8 | bytes[1];
+					break;
+				case TKDATA::BYTEORDER::LITTLE_ENDIAN:
+					decoded_integer = bytes[0] | bytes[1] << 8;
+					break;
+				}
+				points[i + 1][j] = this->GetVOffset(i) + static_cast<signed short>(decoded_integer) * this->GetVResolution(i);
+			}
+		}
+
+		return point_number;
+	}
+	std::vector<std::vector<double> >& GetDataPoints()
+	{
+		return points;
+	}
+//	bool& IsEmpty()
+//	{
+//		return TKDATA::is_empty;
+//	}
+
 
 
 };
@@ -297,6 +368,7 @@ public:
 		this_data->SetADCID(adc_num-1);
 		this_data->SetDataFileName(data_file_name);
 		this_data->ParseHDR();
+//		this_data->IsEmpty() = true;
 		return adc_num-1;
 		/*
 		adc_num++;
@@ -370,6 +442,32 @@ public:
 	int GetChannelNumber(int adc_id, int trace_index)
 	{
 		return TKData[getADCDataIndexByADCID(adc_id)].GetChannelNumber(trace_index);
+	}
+
+	//! ARPISTA
+	unsigned int SetEvery(int adc_id, unsigned int const every)
+	{
+		return TKData[getADCDataIndexByADCID(adc_id)].SetEvery(every);
+	}
+	unsigned int GetEvery(int adc_id)
+	{
+		return TKData[getADCDataIndexByADCID(adc_id)].GetEvery();
+	}
+	unsigned int LoadDataPoints(int adc_id, unsigned int start_position, unsigned int every, unsigned int point_number)
+	{
+	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(start_position, every, point_number);
+	}
+	std::vector<std::vector<double> >* GetDataPointsPtr(int adc_id)
+	{
+		return TKData[getADCDataIndexByADCID(adc_id)].GetDataPointsPtr();
+	}
+	std::vector<std::vector<double> >& GetDataPoints(int adc_id)
+	{
+		return TKData[getADCDataIndexByADCID(adc_id)].GetDataPoints();
+	}
+	std::vector<TKDATA>& Data()
+	{
+		return TKData;
 	}
 };
 

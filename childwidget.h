@@ -9,13 +9,17 @@ namespace Ui {
 class ChildWidget;
 }
 
+class ChildWindow;
+
 class ChildWidget : public QWidget
 {
 	Q_OBJECT
+	friend class ChildWindow;
 
 public:
 	explicit ChildWidget(QWidget *parent = 0);
 	~ChildWidget();
+	void CreateChildWidget(int widget_number);
 
 private:
 	Ui::ChildWidget *ui;

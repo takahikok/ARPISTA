@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 
@@ -51,14 +51,14 @@ void MainWindow::Init(QTreeWidgetItem* settings)
 		ui->treeWidget_Property->setColumnCount(2);//列の数をセット
 		ui->treeWidget_Property->setHeaderLabels(list);//先ほどのlistをヘッダ名にセット
 
-//		QTreeWidgetItem *item = new QTreeWidgetItem;//セットするアイテム
+		//		QTreeWidgetItem *item = new QTreeWidgetItem;//セットするアイテム
 		QTreeWidgetItem *item = settings->clone();
-//		QTreeWidgetItem *child = new QTreeWidgetItem;//itemの子となるアイテム
+		//		QTreeWidgetItem *child = new QTreeWidgetItem;//itemの子となるアイテム
 
-//		item->setText(0,"item");//0列目に"item"というテキストセット
-//		item->setText(1,"1");//1列目に"1"というテキストセット
-//		child->setText(0, "child item");//0列目に"child item"というテキストセット
-//		item->addChild(child);//itemの子にchildをセット
+		//		item->setText(0,"item");//0列目に"item"というテキストセット
+		//		item->setText(1,"1");//1列目に"1"というテキストセット
+		//		child->setText(0, "child item");//0列目に"child item"というテキストセット
+		//		item->addChild(child);//itemの子にchildをセット
 
 		ui->treeWidget_Property->insertTopLevelItem(0, item);//QTreeView０行目にitemをセット
 	}
@@ -76,9 +76,9 @@ ChildWindow* MainWindow::createChild()
 
 ChildWindow* MainWindow::createChildandOpenLocal()
 {
-	QString selFilter = "shot information(*.txt)";
+	QString selFilter = "shot information(*.xml)";
 	QString caption = "open local file";
-	QString dir = "C:/Qt/Qt5.3.2";
+	QString dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 	QString filter = "all(*.*);;shot information(*.xml);;ソース(*.h *.cpp)";
 	QString fileName = QFileDialog::getOpenFileName(
 				this, caption, dir, filter, &selFilter,
@@ -89,13 +89,16 @@ ChildWindow* MainWindow::createChildandOpenLocal()
 		return nullptr;
 
 	ChildWindow *childWindow = MainWindow::createChild();
+	childWindow->OpenShot(fileName.toStdString());
+	childWindow->Plot();
+
 	return childWindow;
 }
 
 void MainWindow::maximizeSubWindows()
 {
 	if (ui->mdiArea->subWindowList().isEmpty())
-	    return;
+		return;
 
 	for (QMdiSubWindow *childWindow : ui->mdiArea->subWindowList()) {
 		childWindow->setWindowState(Qt::WindowMaximized);
@@ -105,29 +108,29 @@ void MainWindow::maximizeSubWindows()
 void MainWindow::tileSubWindowsVertically()
 {
 	if (ui->mdiArea->subWindowList().isEmpty())
-	    return;
+		return;
 
 	QPoint position(0, 0);
 	for (QMdiSubWindow *childWindow : ui->mdiArea->subWindowList()) {
-	    QRect rect(0, 0, ui->mdiArea->width(),
-		       ui->mdiArea->height() / ui->mdiArea->subWindowList().count());
-	    childWindow->setGeometry(rect);
-	    childWindow->move(position);
-	    position.setY(position.y() + childWindow->height());
+		QRect rect(0, 0, ui->mdiArea->width(),
+			   ui->mdiArea->height() / ui->mdiArea->subWindowList().count());
+		childWindow->setGeometry(rect);
+		childWindow->move(position);
+		position.setY(position.y() + childWindow->height());
 	}
 }
 
 void MainWindow::tileSubWindowsHorizontally()
 {
 	if (ui->mdiArea->subWindowList().isEmpty())
-	    return;
+		return;
 	QPoint position(0, 0);
 	for (QMdiSubWindow *childWindow : ui->mdiArea->subWindowList()) {
-	    QRect rect(0, 0, ui->mdiArea->width() / ui->mdiArea->subWindowList().count(),
-		       ui->mdiArea->height());
-	    childWindow->setGeometry(rect);
-	    childWindow->move(position);
-	    position.setX(position.x() + childWindow->width());
+		QRect rect(0, 0, ui->mdiArea->width() / ui->mdiArea->subWindowList().count(),
+			   ui->mdiArea->height());
+		childWindow->setGeometry(rect);
+		childWindow->move(position);
+		position.setX(position.x() + childWindow->width());
 	}
 }
 

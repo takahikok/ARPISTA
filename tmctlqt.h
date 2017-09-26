@@ -1,4 +1,4 @@
-/*STARTM------------------------------------------------------------------
+﻿/*STARTM------------------------------------------------------------------
 +       Module Name     : tmctl.h                                        +
 +       Abstract        : Yokogawa T&M Remote Control functions.         +
 +       Revision History:                                                +

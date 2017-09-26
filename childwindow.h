@@ -10,6 +10,7 @@
 #include <qxml.h>
 #include <qdom.h>
 #include "domparser.h"
+#include "tkshotinfo.h"
 
 namespace Ui {
 class ChildWindow;
@@ -22,11 +23,16 @@ class ChildWindow : public QMdiSubWindow
 public:
 	explicit ChildWindow(QWidget *parent = 0);
 	~ChildWindow();
+	void OpenShot(std::string file_name);
+	void Plot();
 
 private:
 	ChildWidget *childWidget;
 	std::string shot_profile_file_name;
 	QDomDocument shot_profile_dom;
+	TKSHOT* thisShot;
+
+
 };
 
 #endif // CHILDWINDOW_H
