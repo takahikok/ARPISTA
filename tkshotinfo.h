@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QString>
+#include <limits>
 //#define TKSI_ADC_MAX 
 
 /**
@@ -245,7 +246,7 @@ public:
 	{
 		return every;
 	}
-	unsigned int LoadDataPoints(unsigned int start_position, unsigned int every, unsigned int point_number)
+	unsigned int LoadDataPoints(unsigned int start_position = 0, unsigned int every = 0, unsigned int point_number = UINT_MAX)
 	{
 //		points = std::vector<std::vector<double> >(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
 		if (point_number > static_cast<unsigned int>(this->GetBlockSize()))
@@ -268,7 +269,7 @@ public:
 			sp = this->GetDataOffset() + (this->GetBlockSize() * i) * 2;
 
 			for (unsigned int j = 0;
-			     j < static_cast<unsigned int>(point_number) && j < static_cast<unsigned int>(this->GetBlockSize() / 2);
+			     j < static_cast<unsigned int>(point_number);
 			     j++) {
 				ifsRawBin.seekg(sp + (start_position + (every + 1) * j) * 2, std::ios::beg);
 				ifsRawBin.read(reinterpret_cast<char*>(bytes), 2);
@@ -453,7 +454,7 @@ public:
 	{
 		return TKData[getADCDataIndexByADCID(adc_id)].GetEvery();
 	}
-	unsigned int LoadDataPoints(int adc_id, unsigned int start_position, unsigned int every, unsigned int point_number)
+	unsigned int LoadDataPoints(int adc_id, unsigned int start_position = 0, unsigned int every = 0, unsigned int point_number = UINT_MAX)
 	{
 	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(start_position, every, point_number);
 	}

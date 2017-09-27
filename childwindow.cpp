@@ -63,7 +63,7 @@ void ChildWindow::OpenShot(std::string file_path)
 	}
 
 	for (int i = 0; i < thisShot->GetADCNumber(); i++)
-		thisShot->LoadDataPoints(i, 0,0,100000);
+		thisShot->LoadDataPoints(i);
 	return;
 
 
