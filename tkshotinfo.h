@@ -192,7 +192,7 @@ public:
 	{
 		return CHData[trace_index].v_min_data;
 	}
-	int GetBlockSize()
+	unsigned int GetBlockSize()
 	{
 		return CHData[0].block_size;
 	}
@@ -220,7 +220,7 @@ public:
 	{
 		return data_offset;
 	}
-	int GetTraceTotalNumber()
+	unsigned int GetTraceTotalNumber()
 	{
 		return trace_total_number;
 	}
@@ -246,11 +246,11 @@ public:
 	{
 		return every;
 	}
-	unsigned int LoadDataPoints(unsigned int start_position = 0, unsigned int every = 0, unsigned int point_number = UINT_MAX)
+	unsigned int LoadDataPoints(unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX)
 	{
 //		points = std::vector<std::vector<double> >(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
-		if (point_number > static_cast<unsigned int>(this->GetBlockSize()))
-			point_number = this->GetBlockSize();
+		if (point_number > this->GetBlockSize() / (every + 1))
+			point_number = this->GetBlockSize() / (every + 1);
 
 		points.resize(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
 
@@ -262,14 +262,14 @@ public:
 			points[0][j] = this->GetHOffset() + this->GetHResolution() * (start_position + (every + 1) * j);
 
 		// for IS2
-		for (unsigned int i = 0; i < static_cast<unsigned int>(this->GetTraceTotalNumber()); i++) {
+		for (unsigned int i = 0; i < this->GetTraceTotalNumber(); i++) {
 			unsigned int sp;
 			unsigned char bytes[2];
 			unsigned short decoded_integer;
 			sp = this->GetDataOffset() + (this->GetBlockSize() * i) * 2;
 
 			for (unsigned int j = 0;
-			     j < static_cast<unsigned int>(point_number);
+			     j < point_number;
 			     j++) {
 				ifsRawBin.seekg(sp + (start_position + (every + 1) * j) * 2, std::ios::beg);
 				ifsRawBin.read(reinterpret_cast<char*>(bytes), 2);
@@ -339,7 +339,7 @@ public:
 
 	}
 
-	int GetADCNumber()
+	unsigned int GetADCNumber()
 	{
 		return adc_num;
 	}
@@ -428,7 +428,7 @@ public:
 	{
 		return TKData[getADCDataIndexByADCID(adc_id)].GetDataOffset();
 	}
-	int GetTraceTotalNumber(int adc_id)
+	unsigned int GetTraceTotalNumber(int adc_id)
 	{
 		return TKData[getADCDataIndexByADCID(adc_id)].GetTraceTotalNumber();
 	}
@@ -436,7 +436,7 @@ public:
 	{
 		return getADCDataIndexByADCID(adc_id);
 	}
-	int GetADCID(int adc_index)
+	unsigned int GetADCID(int adc_index)
 	{
 		return TKData[adc_index].GetADCID();
 	}
@@ -454,9 +454,9 @@ public:
 	{
 		return TKData[getADCDataIndexByADCID(adc_id)].GetEvery();
 	}
-	unsigned int LoadDataPoints(int adc_id, unsigned int start_position = 0, unsigned int every = 0, unsigned int point_number = UINT_MAX)
+	unsigned int LoadDataPoints(int adc_id, unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX)
 	{
-	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(start_position, every, point_number);
+	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(every, start_position, point_number);
 	}
 	std::vector<std::vector<double> >* GetDataPointsPtr(int adc_id)
 	{

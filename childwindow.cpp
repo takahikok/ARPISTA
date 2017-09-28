@@ -62,8 +62,15 @@ void ChildWindow::OpenShot(std::string file_path)
 //		QMessageBox::about(this, "About this demo", shotNode.toElement().tagName());
 	}
 
-	for (int i = 0; i < thisShot->GetADCNumber(); i++)
-		thisShot->LoadDataPoints(i);
+//	QElapsedTimer et;
+//	et.start();
+	for (unsigned int i = 0; i < thisShot->GetADCNumber(); i++) {
+		unsigned int every = thisShot->GetBlockSize(i) / 4000;
+		thisShot->LoadDataPoints(i, every);
+	}
+
+//	qint64 t = et.elapsed();
+//	QMessageBox::about(this, "About this demo", QString::number(t));
 	return;
 
 
@@ -71,34 +78,29 @@ void ChildWindow::OpenShot(std::string file_path)
 
 void ChildWindow::Plot()
 {
+//	QElapsedTimer et;
+//	et.start();
 	int total_trace = 0;
-	for (int i = 0; i < thisShot->GetADCNumber(); i++)
+	for (unsigned int i = 0; i < thisShot->GetADCNumber(); i++)
 			total_trace += thisShot->GetTraceTotalNumber(i);
 
 	this->childWidget->CreateChildWidget(total_trace);
 
-	for (int i = 0, adc_ch = 0, adc_id = 0; i < total_trace; i++, adc_ch++) {
-		if (adc_ch == thisShot->GetTraceTotalNumber(adc_id)) {
-			adc_id++;
-			adc_ch = 0;
+
+	for (unsigned int trace_id = 0, adc_id = 0; adc_id < thisShot->GetADCNumber(); adc_id++) {
+		for (unsigned int ch_id = 0; ch_id < thisShot->GetTraceTotalNumber(adc_id); trace_id++, ch_id++) {
+			std::vector<QwtPlotCurve*>& this_curve = this->childWidget->plotRawWidget[trace_id]->thisCurve;
+			this_curve.push_back(new QwtPlotCurve("sin"));
+			this_curve[0]->setPen(QPen(Qt::red));
+			this_curve[0]->attach(this->childWidget->plotRawWidget[trace_id]);
+			this_curve[0]->setSamples(thisShot->GetDataPoints(adc_id)[0].data(),
+					thisShot->GetDataPoints(adc_id)[ch_id + 1].data(),
+					static_cast<unsigned int>(thisShot->GetDataPoints(adc_id)[ch_id + 1].size()));
+
 		}
-
-//		int i = 0, adc_ch = 0, adc_id = 0;
-//		PlotRawWidget::DATA data_;
-//		data_.x = &(thisShot->GetDataPoints(adc_id)[0]);
-//		data_.y = &(thisShot->GetDataPoints(adc_id)[adc_ch + 1]);
-//		data_.x = (thisShot->GetDataPointsPtr(adc_id)->at(0));
-//		data_.y = (thisShot->GetDataPointsPtr(adc_id)[adc_ch + 1]);
-//		this->childWidget->plotRawWidget[i]->data.clear();
-//		this->childWidget->plotRawWidget[i]->data.push_back(data_);
-
-		this->childWidget->plotRawWidget[i]->thisCurve.push_back(new QwtPlotCurve("sin"));
-		this->childWidget->plotRawWidget[i]->thisCurve[0]->setPen(QPen(Qt::red));
-		this->childWidget->plotRawWidget[i]->thisCurve[0]->attach(this->childWidget->plotRawWidget[i]);
-
-//		thisCurve[0]->setSamples(data[0].x->data(), data[0].y->data(), static_cast<int>(data[0].y->size()));
-		this->childWidget->plotRawWidget[i]->thisCurve[0]->setSamples(thisShot->GetDataPoints(adc_id)[0].data(), thisShot->GetDataPoints(adc_id)[adc_ch + 1].data(), static_cast<unsigned int>(thisShot->GetDataPoints(adc_id)[adc_ch + 1].size()));
 	}
+//	qint64 t = et.elapsed();
+//	QMessageBox::about(this, "About this demo", QString::number(t));
 }
 
 
