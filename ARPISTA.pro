@@ -34,7 +34,8 @@ SOURCES += \
     tkadc.cpp \
     tkadcinfo.cpp \
     tkshotinfo.cpp \
-    tmctlqt.cpp
+    tmctlqt.cpp \
+    adcchannelcontrolwidget.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,11 +47,13 @@ HEADERS += \
     tkadc.h \
     tkadcinfo.h \
     tkshotinfo.h \
-    tmctlqt.h
+    tmctlqt.h \
+    adcchannelcontrolwidget.h
 
 FORMS += \
         mainwindow.ui \
-    childwidget.ui
+    childwidget.ui \
+    adcchannelcontrolwidget.ui
 
 CONFIG += c++11
 CONFIG += c++14

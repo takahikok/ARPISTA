@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation);
+
 }
 
 MainWindow::~MainWindow()
@@ -92,6 +93,17 @@ ChildWindow* MainWindow::createChildandOpenLocal()
 	childWindow->OpenShot(fileName.toStdString());
 	childWindow->Plot();
 
+	TKSHOT* thisShot = childWindow->GetThisShotPtr();
+
+	for (unsigned int i = 0; i < thisShot->GetTotalTraceNumber(); i++) {
+		childWindow->GetAdcChannelControlWidgetItemListPtr()->push_back(new QListWidgetItem(ui->listWidget_ADCChannelControl));
+		ui->listWidget_ADCChannelControl->addItem(childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i));
+		ADCChannelControlWidget* adcChannelControlWidgetItemItem = new ADCChannelControlWidget();
+		childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i)->setSizeHint(adcChannelControlWidgetItemItem->sizeHint());
+		ui->listWidget_ADCChannelControl->setItemWidget(childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i), adcChannelControlWidgetItemItem);
+		adcChannelControlWidgetItemItem->SetParentWidgetItem(childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i));
+	}
+
 	return childWindow;
 }
 
@@ -136,5 +148,8 @@ void MainWindow::tileSubWindowsHorizontally()
 
 void MainWindow::test()
 {
-
+//	ADCChannelControlWidget *adcChannelControlWidgetItemItem = new ADCChannelControlWidget();
+//	adcChannelControlWidgetItemList->setSizeHint(adcChannelControlWidgetItemItem->sizeHint());
+//	ui->listWidget_ADCChannelControl->setItemWidget(adcChannelControlWidgetItemList, adcChannelControlWidgetItemItem);
+//	adcChannelControlWidgetItemItem->SetParentWidgetItem(adcChannelControlWidgetItemList);
 }

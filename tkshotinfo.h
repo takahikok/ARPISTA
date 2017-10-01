@@ -220,18 +220,18 @@ public:
 	{
 		return data_offset;
 	}
-	unsigned int GetTraceTotalNumber()
+	unsigned int GetTraceNumber()
 	{
 		return trace_total_number;
 	}
-	int ChannnelNumberToTraceNumber(int const channel_number)
-	{
-		return channel_number_to_trace_number[channel_number];
-	}
-	int GetChannelNumber(int const trace_index)
-	{
-		return CHData[trace_index].ch_number;
-	}
+//	int ChannnelNumberToTraceNumber(int const channel_number)
+//	{
+//		return channel_number_to_trace_number[channel_number];
+//	}
+//	int GetChannelNumber(int const trace_index)
+//	{
+//		return CHData[trace_index].ch_number;
+//	}
 
 	//! ARPISTA
 	std::vector<std::vector<double> >* GetDataPointsPtr()
@@ -252,7 +252,7 @@ public:
 		if (point_number > this->GetBlockSize() / (every + 1))
 			point_number = this->GetBlockSize() / (every + 1);
 
-		points.resize(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
+		points.resize(this->GetTraceNumber() + 1, std::vector<double>(point_number, 0.0f));
 
 		std::ifstream ifsRawBin;
 		ifsRawBin.open(this->GetDataFileName() + ".WVF", std::ios::in | std::ios::binary );
@@ -262,7 +262,7 @@ public:
 			points[0][j] = this->GetHOffset() + this->GetHResolution() * (start_position + (every + 1) * j);
 
 		// for IS2
-		for (unsigned int i = 0; i < this->GetTraceTotalNumber(); i++) {
+		for (unsigned int i = 0; i < this->GetTraceNumber(); i++) {
 			unsigned int sp;
 			unsigned char bytes[2];
 			unsigned short decoded_integer;
@@ -319,7 +319,7 @@ private:
 
 	int plot_num;
 	//	std::vector<TKPLOT> TKPlot;
-
+	int total_trace_number = 0;
 
 	int getADCDataIndexByADCID(int adc_id)
 	{
@@ -357,6 +357,7 @@ public:
 	{
 		adc_num = 0;
 		TKData.clear();
+		total_trace_number = 0;
 		return 0;
 	}
 	int AppendDataFile(std::string data_file_name)
@@ -366,10 +367,13 @@ public:
 		adc_num++;
 		TKData.push_back(TKDATA());
 		this_data = &(TKData[adc_num - 1]);
-		this_data->SetADCID(adc_num-1);
+		this_data->SetADCID(adc_num - 1);
 		this_data->SetDataFileName(data_file_name);
 		this_data->ParseHDR();
 //		this_data->IsEmpty() = true;
+
+		total_trace_number += this->GetTraceNumber(adc_num - 1);
+
 		return adc_num-1;
 		/*
 		adc_num++;
@@ -428,9 +432,10 @@ public:
 	{
 		return TKData[getADCDataIndexByADCID(adc_id)].GetDataOffset();
 	}
-	unsigned int GetTraceTotalNumber(int adc_id)
+	// Function name changed TKSHOT::GetTraceTotalNumber() to TKSHOT::GetTraceNumber()
+	unsigned int GetTraceNumber(int adc_id)
 	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetTraceTotalNumber();
+		return TKData[getADCDataIndexByADCID(adc_id)].GetTraceNumber();
 	}
 	int ADCIDToADCDataIndex(int adc_id)
 	{
@@ -440,10 +445,10 @@ public:
 	{
 		return TKData[adc_index].GetADCID();
 	}
-	int GetChannelNumber(int adc_id, int trace_index)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetChannelNumber(trace_index);
-	}
+//	int GetChannelNumber(int adc_id, int trace_index)
+//	{
+//		return TKData[getADCDataIndexByADCID(adc_id)].GetChannelNumber(trace_index);
+//	}
 
 	//! ARPISTA
 	unsigned int SetEvery(int adc_id, unsigned int const every)
@@ -469,6 +474,10 @@ public:
 	std::vector<TKDATA>& Data()
 	{
 		return TKData;
+	}
+	unsigned int GetTotalTraceNumber()
+	{
+		return total_trace_number;
 	}
 };
 

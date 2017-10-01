@@ -80,15 +80,12 @@ void ChildWindow::Plot()
 {
 //	QElapsedTimer et;
 //	et.start();
-	int total_trace = 0;
-	for (unsigned int i = 0; i < thisShot->GetADCNumber(); i++)
-			total_trace += thisShot->GetTraceTotalNumber(i);
 
-	this->childWidget->CreateChildWidget(total_trace);
+	this->childWidget->CreateChildWidget(thisShot->GetTotalTraceNumber());
 
 
 	for (unsigned int trace_id = 0, adc_id = 0; adc_id < thisShot->GetADCNumber(); adc_id++) {
-		for (unsigned int ch_id = 0; ch_id < thisShot->GetTraceTotalNumber(adc_id); trace_id++, ch_id++) {
+		for (unsigned int ch_id = 0; ch_id < thisShot->GetTraceNumber(adc_id); trace_id++, ch_id++) {
 			std::vector<QwtPlotCurve*>& this_curve = this->childWidget->plotRawWidget[trace_id]->thisCurve;
 			this_curve.push_back(new QwtPlotCurve("sin"));
 			this_curve[0]->setPen(QPen(Qt::red));
@@ -100,7 +97,17 @@ void ChildWindow::Plot()
 		}
 	}
 //	qint64 t = et.elapsed();
-//	QMessageBox::about(this, "About this demo", QString::number(t));
+	//	QMessageBox::about(this, "About this demo", QString::number(t));
+}
+
+TKSHOT* ChildWindow::GetThisShotPtr()
+{
+	return thisShot;
+}
+
+std::vector<QListWidgetItem*>*ChildWindow::GetAdcChannelControlWidgetItemListPtr()
+{
+	return &adcChannelControlWidgetItemList;
 }
 
 

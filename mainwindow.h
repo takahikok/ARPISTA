@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "domparser.h"
 #include "childwindow.h"
+#include "adcchannelcontrolwidget.h"
+#include "tkshotinfo.h"
 
 namespace Ui {
 class MainWindow;
