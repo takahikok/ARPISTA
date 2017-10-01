@@ -26,6 +26,7 @@
 #include <QMessageBox>
 #include <QString>
 #include <limits>
+#include "tkadcconst.h"
 //#define TKSI_ADC_MAX 
 
 /**
@@ -37,33 +38,6 @@
 */
 class TKDATA
 {
-public:
-	/**
-	* @enum BYTEORDER
-	* @blief バイトオーダー列挙型
-	*
-	*	バイナリーファイルのバイトオーダーです。<br>
-	*	バイナリーファイルから直接データを読み出す際に必要です。
-	*/
-	enum class BYTEORDER
-	{
-		//! 680xx
-		BIG_ENDIAN,
-		//! 80x86
-		LITTLE_ENDIAN
-	};
-	/**
-	* @enum DATAFORMAT
-	* @blief データフォーマット列挙型
-	*
-	*	バイナリーファイルのデータフォーマットです。<br>
-	*	詳細は横河電機のドキュメントを参照してください。
-	*/
-	enum class DATAFORMAT
-	{
-		TRACE,
-		BLOCK
-	};
 
 private:
 	int adc_id;
@@ -73,8 +47,8 @@ private:
 	int trace_total_number;
 
 	std::string model_name;
-	BYTEORDER byte_order;
-	DATAFORMAT data_format;
+	TKADCCONST::BYTEORDER byte_order;
+	TKADCCONST::DATAFORMAT data_format;
 	int data_offset;
 
 	/**
@@ -140,11 +114,7 @@ private:
 //	bool is_empty;
 
 public:
-	TKDATA()
-	{
-		for (int i = 0; i < TKADC_ADC_CHANNEL_MAX; i++)
-			channel_number_to_trace_number[i] = -1;
-	}
+	TKDATA();
 	/**
 	* @fn ParseHDR
 	* @blief ヘッダーファイルのパースを行います。
@@ -154,76 +124,23 @@ public:
 	*	正常終了
 	*/
 	int ParseHDR();
-	int SetADCID(int iadc_id)
-	{
-		adc_id = iadc_id;
-		return 0;
-	}
-	int GetADCID()
-	{
-		return adc_id;
-	}
-	int SetDataFileName(std::string idata_file_name)
-	{
-		data_file_name = idata_file_name;
-		return 0;
-	}
-	std::string GetDataFileName()
-	{
-		return data_file_name;
-	}
-	float GetHResolution()
-	{
-		return CHData[0].h_resolution;
-	}
-	float GetVOffset(int const trace_index)
-	{
-		return CHData[trace_index].v_offset;
-	}
-	float GetVResolution(int const trace_index)
-	{
-		return CHData[trace_index].v_resolution;
-	}
-	int GetVMaxData(int const trace_index)
-	{
-		return CHData[trace_index].v_max_data;
-	}
-	int GetVMinData(int const trace_index)
-	{
-		return CHData[trace_index].v_min_data;
-	}
-	unsigned int GetBlockSize()
-	{
-		return CHData[0].block_size;
-	}
-	struct std::tm GetTime()
-	{
-		return CHData[0].time;
-	}
-	float GetHOffset()
-	{
-		return CHData[0].h_offset;
-	}
-	std::string GetModelName()
-	{
-		return model_name;
-	}
-	TKDATA::BYTEORDER GetByteOrder()
-	{
-		return byte_order;
-	}
-	TKDATA::DATAFORMAT GetDataFormat()
-	{
-		return data_format;
-	}
-	int GetDataOffset()
-	{
-		return data_offset;
-	}
-	unsigned int GetTraceNumber()
-	{
-		return trace_total_number;
-	}
+	int SetADCID(int iadc_id);
+	int GetADCID();
+	int SetDataFileName(std::string idata_file_name);
+	std::string GetDataFileName();
+	float GetHResolution();
+	float GetVOffset(int const trace_index);
+	float GetVResolution(int const trace_index);
+	int GetVMaxData(int const trace_index);
+	int GetVMinData(int const trace_index);
+	unsigned int GetBlockSize();
+	struct std::tm GetTime();
+	float GetHOffset();
+	std::string GetModelName();
+	TKADCCONST::BYTEORDER GetByteOrder();
+	TKADCCONST::DATAFORMAT GetDataFormat();
+	int GetDataOffset();
+	unsigned int GetTraceNumber();
 //	int ChannnelNumberToTraceNumber(int const channel_number)
 //	{
 //		return channel_number_to_trace_number[channel_number];
@@ -234,63 +151,11 @@ public:
 //	}
 
 	//! ARPISTA
-	std::vector<std::vector<double> >* GetDataPointsPtr()
-	{
-		return &points;
-	}
-	unsigned int SetEvery(unsigned int const every_)
-	{
-		return every = every_;
-	}
-	unsigned int GetEvery()
-	{
-		return every;
-	}
-	unsigned int LoadDataPoints(unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX)
-	{
-//		points = std::vector<std::vector<double> >(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
-		if (point_number > this->GetBlockSize() / (every + 1))
-			point_number = this->GetBlockSize() / (every + 1);
-
-		points.resize(this->GetTraceNumber() + 1, std::vector<double>(point_number, 0.0f));
-
-		std::ifstream ifsRawBin;
-		ifsRawBin.open(this->GetDataFileName() + ".WVF", std::ios::in | std::ios::binary );
-
-		// time axis
-		for (unsigned int j = 0; j < point_number; j++)
-			points[0][j] = this->GetHOffset() + this->GetHResolution() * (start_position + (every + 1) * j);
-
-		// for IS2
-		for (unsigned int i = 0; i < this->GetTraceNumber(); i++) {
-			unsigned int sp;
-			unsigned char bytes[2];
-			unsigned short decoded_integer;
-			sp = this->GetDataOffset() + (this->GetBlockSize() * i) * 2;
-
-			for (unsigned int j = 0;
-			     j < point_number;
-			     j++) {
-				ifsRawBin.seekg(sp + (start_position + (every + 1) * j) * 2, std::ios::beg);
-				ifsRawBin.read(reinterpret_cast<char*>(bytes), 2);
-				switch (this->GetByteOrder()) {
-				case TKDATA::BYTEORDER::BIG_ENDIAN:
-					decoded_integer = bytes[0] << 8 | bytes[1];
-					break;
-				case TKDATA::BYTEORDER::LITTLE_ENDIAN:
-					decoded_integer = bytes[0] | bytes[1] << 8;
-					break;
-				}
-				points[i + 1][j] = this->GetVOffset(i) + static_cast<signed short>(decoded_integer) * this->GetVResolution(i);
-			}
-		}
-
-		return point_number;
-	}
-	std::vector<std::vector<double> >& GetDataPoints()
-	{
-		return points;
-	}
+	std::vector<std::vector<double> >* GetDataPointsPtr();
+	unsigned int SetEvery(unsigned int const every_);
+	unsigned int GetEvery();
+	unsigned int LoadDataPoints(unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX);
+	std::vector<std::vector<double> >& GetDataPoints();
 //	bool& IsEmpty()
 //	{
 //		return TKDATA::is_empty;
@@ -321,164 +186,50 @@ private:
 	//	std::vector<TKPLOT> TKPlot;
 	int total_trace_number = 0;
 
-	int getADCDataIndexByADCID(int adc_id)
-	{
-		for (int i = 0; i < adc_num; i++)
-			if (TKData[i].GetADCID() == adc_id)
-				return i;
-		return -1;
-	}
+	int getADCDataIndexByADCID(int adc_id);
 
 public:
-	TKSHOT()
-	{
-		this->Clear();
-	}
-	~TKSHOT()
-	{
+	TKSHOT();
+	~TKSHOT() {}
+//	std::vector<TKDATA>::iterator operator [](unsigned int n); //(*thisShot)[i]
+//	std::vector<TKDATA>::iterator operator [](const unsigned int n);
 
-	}
+	unsigned int GetADCNumber();
+//	std::string GetDataFileName(int adc_id);
 
-	unsigned int GetADCNumber()
-	{
-		return adc_num;
-	}
-	std::string GetDataFileName(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetDataFileName();
-	}
+	int NameShotNumber(int ishot_number);
+	int Clear();
+	int AppendDataFile(std::string data_file_name);
+//	float GetHResolution(int adc_id);
+//	int GetBlockSize(int adc_id);
+//	float GetVOffset(int adc_id, int trace_index);
+//	float GetVResolution(int adc_id, int trace_index);
+//	int GetVMaxData(int adc_id, int trace_index);
+//	int GetVMinData(int adc_id, int trace_index);
+//	float GetHOffset(int adc_id);
+//	std::string GetModelName(int adc_id);
+//	struct std::tm GetTime(int adc_id);
+//	TKADCCONST::BYTEORDER GetByteOrder(int adc_id);
+//	TKADCCONST::DATAFORMAT GetDataFormat(int adc_id);
+//	int GetDataOffset(int adc_id);
+//	// Function name changed TKSHOT::GetTraceTotalNumber() to TKSHOT::GetTraceNumber()
+//	unsigned int GetTraceNumber(int adc_id);
+	int ADCIDToADCDataIndex(int adc_id);
+	unsigned int GetADCID(int adc_index);
+////	int GetChannelNumber(int adc_id, int trace_index)
+////	{
+////		return TKData[getADCDataIndexByADCID(adc_id)].GetChannelNumber(trace_index);
+////	}
 
-	int NameShotNumber(int ishot_number)
-	{
-		shot_number = ishot_number;
-		return 0;
-	}
-	int Clear()
-	{
-		adc_num = 0;
-		TKData.clear();
-		total_trace_number = 0;
-		return 0;
-	}
-	int AppendDataFile(std::string data_file_name)
-	{
-
-		TKDATA *this_data;
-		adc_num++;
-		TKData.push_back(TKDATA());
-		this_data = &(TKData[adc_num - 1]);
-		this_data->SetADCID(adc_num - 1);
-		this_data->SetDataFileName(data_file_name);
-		this_data->ParseHDR();
-//		this_data->IsEmpty() = true;
-
-		total_trace_number += this->GetTraceNumber(adc_num - 1);
-
-		return adc_num-1;
-		/*
-		adc_num++;
-		TKData.push_back(TKDATA::TKDATA());
-		TKData[adc_num - 1].SetADCID(adc_id);
-		TKData[adc_num - 1].SetDataFileName(data_file_name);
-		TKData[adc_num - 1].ParseHDR();
-		return 0;
-		*/
-	}
-	float GetHResolution(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetHResolution();
-	}
-	int GetBlockSize(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetBlockSize();
-	}
-	float GetVOffset(int adc_id, int trace_index)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetVOffset(trace_index);
-	}
-	float GetVResolution(int adc_id, int trace_index)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetVResolution(trace_index);
-	}
-	int GetVMaxData(int adc_id, int trace_index)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetVMaxData(trace_index);
-	}
-	int GetVMinData(int adc_id, int trace_index)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetVMinData(trace_index);
-	}
-	float GetHOffset(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetHOffset();
-	}
-	std::string GetModelName(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetModelName();
-	}
-	struct std::tm GetTime(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetTime();
-	}
-	TKDATA::BYTEORDER GetByteOrder(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetByteOrder();
-	}
-	TKDATA::DATAFORMAT GetDataFormat(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetDataFormat();
-	}
-	int GetDataOffset(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetDataOffset();
-	}
-	// Function name changed TKSHOT::GetTraceTotalNumber() to TKSHOT::GetTraceNumber()
-	unsigned int GetTraceNumber(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetTraceNumber();
-	}
-	int ADCIDToADCDataIndex(int adc_id)
-	{
-		return getADCDataIndexByADCID(adc_id);
-	}
-	unsigned int GetADCID(int adc_index)
-	{
-		return TKData[adc_index].GetADCID();
-	}
-//	int GetChannelNumber(int adc_id, int trace_index)
-//	{
-//		return TKData[getADCDataIndexByADCID(adc_id)].GetChannelNumber(trace_index);
-//	}
-
-	//! ARPISTA
-	unsigned int SetEvery(int adc_id, unsigned int const every)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].SetEvery(every);
-	}
-	unsigned int GetEvery(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetEvery();
-	}
-	unsigned int LoadDataPoints(int adc_id, unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX)
-	{
-	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(every, start_position, point_number);
-	}
-	std::vector<std::vector<double> >* GetDataPointsPtr(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetDataPointsPtr();
-	}
-	std::vector<std::vector<double> >& GetDataPoints(int adc_id)
-	{
-		return TKData[getADCDataIndexByADCID(adc_id)].GetDataPoints();
-	}
-	std::vector<TKDATA>& Data()
-	{
-		return TKData;
-	}
-	unsigned int GetTotalTraceNumber()
-	{
-		return total_trace_number;
-	}
+//	//! ARPISTA
+//	unsigned int SetEvery(int adc_id, unsigned int const every);
+//	unsigned int GetEvery(int adc_id);
+//	unsigned int LoadDataPoints(int adc_id, unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX);
+//	std::vector<std::vector<double> >* GetDataPointsPtr(int adc_id);
+//	std::vector<std::vector<double> >& GetDataPoints(int adc_id);
+	std::vector<TKDATA>& Data();
+	unsigned int GetTotalTraceNumber();
+	TKDATA& Data(unsigned int n);
 };
 
 

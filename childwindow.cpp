@@ -65,8 +65,8 @@ void ChildWindow::OpenShot(std::string file_path)
 //	QElapsedTimer et;
 //	et.start();
 	for (unsigned int i = 0; i < thisShot->GetADCNumber(); i++) {
-		unsigned int every = thisShot->GetBlockSize(i) / 4000;
-		thisShot->LoadDataPoints(i, every);
+		unsigned int every = thisShot->Data(i).GetBlockSize() / 4000;
+		thisShot->Data(i).LoadDataPoints(every);
 	}
 
 //	qint64 t = et.elapsed();
@@ -85,14 +85,14 @@ void ChildWindow::Plot()
 
 
 	for (unsigned int trace_id = 0, adc_id = 0; adc_id < thisShot->GetADCNumber(); adc_id++) {
-		for (unsigned int ch_id = 0; ch_id < thisShot->GetTraceNumber(adc_id); trace_id++, ch_id++) {
+		for (unsigned int ch_id = 0; ch_id < thisShot->Data(adc_id).GetTraceNumber(); trace_id++, ch_id++) {
 			std::vector<QwtPlotCurve*>& this_curve = this->childWidget->plotRawWidget[trace_id]->thisCurve;
 			this_curve.push_back(new QwtPlotCurve("sin"));
 			this_curve[0]->setPen(QPen(Qt::red));
 			this_curve[0]->attach(this->childWidget->plotRawWidget[trace_id]);
-			this_curve[0]->setSamples(thisShot->GetDataPoints(adc_id)[0].data(),
-					thisShot->GetDataPoints(adc_id)[ch_id + 1].data(),
-					static_cast<unsigned int>(thisShot->GetDataPoints(adc_id)[ch_id + 1].size()));
+			this_curve[0]->setSamples(thisShot->Data(adc_id).GetDataPoints()[0].data(),
+					thisShot->Data(adc_id).GetDataPoints()[ch_id + 1].data(),
+					static_cast<unsigned int>(thisShot->Data(adc_id).GetDataPoints()[ch_id + 1].size()));
 
 		}
 	}

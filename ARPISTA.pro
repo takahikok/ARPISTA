@@ -48,7 +48,8 @@ HEADERS += \
     tkadcinfo.h \
     tkshotinfo.h \
     tmctlqt.h \
-    adcchannelcontrolwidget.h
+    adcchannelcontrolwidget.h \
+    tkadcconst.h
 
 FORMS += \
         mainwindow.ui \

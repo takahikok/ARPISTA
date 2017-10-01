@@ -107,17 +107,17 @@ int TKDATA::ParseHDR()
 				// big endian 680xx
 			case 'b':
 			case 'B':
-				byte_order = TKDATA::BYTEORDER::BIG_ENDIAN;
+				byte_order = TKADCCONST::BYTEORDER::BIG_ENDIAN;
 				break;
 
 				// little endian 80x86
 			case 'l':
 			case 'L':
-				byte_order = TKDATA::BYTEORDER::LITTLE_ENDIAN;
+				byte_order = TKADCCONST::BYTEORDER::LITTLE_ENDIAN;
 				break;
 
 			default:
-				byte_order = TKDATA::BYTEORDER::BIG_ENDIAN;
+				byte_order = TKADCCONST::BYTEORDER::BIG_ENDIAN;
 				break;
 			}
 			break;
@@ -130,17 +130,17 @@ int TKDATA::ParseHDR()
 				// trace
 			case 't':
 			case 'T':
-				data_format = TKDATA::DATAFORMAT::TRACE;
+				data_format = TKADCCONST::DATAFORMAT::TRACE;
 				break;
 
 				// bloack
 			case 'b':
 			case 'B':
-				data_format = TKDATA::DATAFORMAT::BLOCK;
+				data_format = TKADCCONST::DATAFORMAT::BLOCK;
 				break;
 
 			default:
-				data_format = TKDATA::DATAFORMAT::BLOCK;
+				data_format = TKADCCONST::DATAFORMAT::BLOCK;
 				break;
 			}
 			break;
@@ -287,6 +287,155 @@ int TKDATA::ParseHDR()
 	}
 	return 0;
 }
+
+int TKDATA::SetADCID(int iadc_id)
+{
+	adc_id = iadc_id;
+	return 0;
+}
+
+int TKDATA::GetADCID()
+{
+	return adc_id;
+}
+
+int TKDATA::SetDataFileName(std::string idata_file_name)
+{
+	data_file_name = idata_file_name;
+	return 0;
+}
+
+std::string TKDATA::GetDataFileName()
+{
+	return data_file_name;
+}
+
+float TKDATA::GetHResolution()
+{
+	return CHData[0].h_resolution;
+}
+
+float TKDATA::GetVOffset(const int trace_index)
+{
+	return CHData[trace_index].v_offset;
+}
+
+float TKDATA::GetVResolution(const int trace_index)
+{
+	return CHData[trace_index].v_resolution;
+}
+
+int TKDATA::GetVMaxData(const int trace_index)
+{
+	return CHData[trace_index].v_max_data;
+}
+
+int TKDATA::GetVMinData(const int trace_index)
+{
+	return CHData[trace_index].v_min_data;
+}
+
+unsigned int TKDATA::GetBlockSize()
+{
+	return CHData[0].block_size;
+}
+
+tm TKDATA::GetTime()
+{
+	return CHData[0].time;
+}
+
+float TKDATA::GetHOffset()
+{
+	return CHData[0].h_offset;
+}
+
+std::string TKDATA::GetModelName()
+{
+	return model_name;
+}
+
+TKADCCONST::BYTEORDER TKDATA::GetByteOrder()
+{
+	return byte_order;
+}
+
+TKADCCONST::DATAFORMAT TKDATA::GetDataFormat()
+{
+	return data_format;
+}
+
+int TKDATA::GetDataOffset()
+{
+	return data_offset;
+}
+
+unsigned int TKDATA::GetTraceNumber()
+{
+	return trace_total_number;
+}
+
+std::vector<std::vector<double> >*TKDATA::GetDataPointsPtr()
+{
+	return &points;
+}
+
+unsigned int TKDATA::SetEvery(const unsigned int every_)
+{
+	return every = every_;
+}
+
+unsigned int TKDATA::GetEvery()
+{
+	return every;
+}
+
+unsigned int TKDATA::LoadDataPoints(unsigned int every, unsigned int start_position, unsigned int point_number)
+{
+	//		points = std::vector<std::vector<double> >(this->GetTraceTotalNumber() + 1, std::vector<double>(point_number, 0.0f));
+	if (point_number > this->GetBlockSize() / (every + 1))
+		point_number = this->GetBlockSize() / (every + 1);
+
+	points.resize(this->GetTraceNumber() + 1, std::vector<double>(point_number, 0.0f));
+
+	std::ifstream ifsRawBin;
+	ifsRawBin.open(this->GetDataFileName() + ".WVF", std::ios::in | std::ios::binary );
+
+	// time axis
+	for (unsigned int j = 0; j < point_number; j++)
+		points[0][j] = this->GetHOffset() + this->GetHResolution() * (start_position + (every + 1) * j);
+
+	// for IS2
+	for (unsigned int i = 0; i < this->GetTraceNumber(); i++) {
+		unsigned int sp;
+		unsigned char bytes[2];
+		unsigned short decoded_integer;
+		sp = this->GetDataOffset() + (this->GetBlockSize() * i) * 2;
+
+		for (unsigned int j = 0;
+		     j < point_number;
+		     j++) {
+			ifsRawBin.seekg(sp + (start_position + (every + 1) * j) * 2, std::ios::beg);
+			ifsRawBin.read(reinterpret_cast<char*>(bytes), 2);
+			switch (this->GetByteOrder()) {
+			case TKADCCONST::BYTEORDER::BIG_ENDIAN:
+				decoded_integer = bytes[0] << 8 | bytes[1];
+				break;
+			case TKADCCONST::BYTEORDER::LITTLE_ENDIAN:
+				decoded_integer = bytes[0] | bytes[1] << 8;
+				break;
+			}
+			points[i + 1][j] = this->GetVOffset(i) + static_cast<signed short>(decoded_integer) * this->GetVResolution(i);
+		}
+	}
+
+	return point_number;
+}
+
+std::vector<std::vector<double> >&TKDATA::GetDataPoints()
+{
+	return points;
+}
 int TKDATA::traceNameToCHNumber(std::string trace_name)
 {
 	for (int i = 1; i < 100; i++)
@@ -294,3 +443,193 @@ int TKDATA::traceNameToCHNumber(std::string trace_name)
 			return i;
 	return 0;
 }
+
+TKDATA::TKDATA()
+{
+	for (int i = 0; i < TKADC_ADC_CHANNEL_MAX; i++)
+		channel_number_to_trace_number[i] = -1;
+}
+
+int TKSHOT::getADCDataIndexByADCID(int adc_id)
+{
+	for (int i = 0; i < adc_num; i++)
+		if (TKData[i].GetADCID() == adc_id)
+			return i;
+	return -1;
+}
+
+TKSHOT::TKSHOT()
+{
+	this->Clear();
+}
+
+unsigned int TKSHOT::GetADCNumber()
+{
+	return adc_num;
+}
+
+//std::string TKSHOT::GetDataFileName(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataFileName();
+//}
+
+int TKSHOT::NameShotNumber(int ishot_number)
+{
+	shot_number = ishot_number;
+	return 0;
+}
+
+int TKSHOT::Clear()
+{
+	adc_num = 0;
+	TKData.clear();
+	total_trace_number = 0;
+	return 0;
+}
+
+int TKSHOT::AppendDataFile(std::string data_file_name)
+{
+
+	TKDATA *this_data;
+	adc_num++;
+	TKData.push_back(TKDATA());
+	this_data = &(TKData[adc_num - 1]);
+	this_data->SetADCID(adc_num - 1);
+	this_data->SetDataFileName(data_file_name);
+	this_data->ParseHDR();
+	//		this_data->IsEmpty() = true;
+
+	total_trace_number += this->Data(adc_num - 1).GetTraceNumber();
+
+	return adc_num-1;
+	/*
+		adc_num++;
+		TKData.push_back(TKDATA::TKDATA());
+		TKData[adc_num - 1].SetADCID(adc_id);
+		TKData[adc_num - 1].SetDataFileName(data_file_name);
+		TKData[adc_num - 1].ParseHDR();
+		return 0;
+		*/
+}
+
+//float TKSHOT::GetHResolution(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetHResolution();
+//}
+
+//int TKSHOT::GetBlockSize(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetBlockSize();
+//}
+
+//float TKSHOT::GetVOffset(int adc_id, int trace_index)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetVOffset(trace_index);
+//}
+
+//float TKSHOT::GetVResolution(int adc_id, int trace_index)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetVResolution(trace_index);
+//}
+
+//int TKSHOT::GetVMaxData(int adc_id, int trace_index)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetVMaxData(trace_index);
+//}
+
+//int TKSHOT::GetVMinData(int adc_id, int trace_index)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetVMinData(trace_index);
+//}
+
+//float TKSHOT::GetHOffset(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetHOffset();
+//}
+
+//std::string TKSHOT::GetModelName(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetModelName();
+//}
+
+//tm TKSHOT::GetTime(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetTime();
+//}
+
+//TKADCCONST::BYTEORDER TKSHOT::GetByteOrder(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetByteOrder();
+//}
+
+//TKADCCONST::DATAFORMAT TKSHOT::GetDataFormat(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataFormat();
+//}
+
+//int TKSHOT::GetDataOffset(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataOffset();
+//}
+
+//unsigned int TKSHOT::GetTraceNumber(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetTraceNumber();
+//}
+
+int TKSHOT::ADCIDToADCDataIndex(int adc_id)
+{
+	return getADCDataIndexByADCID(adc_id);
+}
+
+unsigned int TKSHOT::GetADCID(int adc_index)
+{
+	return TKData[adc_index].GetADCID();
+}
+
+//unsigned int TKSHOT::SetEvery(int adc_id, const unsigned int every)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].SetEvery(every);
+//}
+
+//unsigned int TKSHOT::GetEvery(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetEvery();
+//}
+
+//unsigned int TKSHOT::LoadDataPoints(int adc_id, unsigned int every, unsigned int start_position, unsigned int point_number)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(every, start_position, point_number);
+//}
+
+//std::vector<std::vector<double> >*TKSHOT::GetDataPointsPtr(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataPointsPtr();
+//}
+
+//std::vector<std::vector<double> >&TKSHOT::GetDataPoints(int adc_id)
+//{
+//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataPoints();
+//}
+
+std::vector<TKDATA>& TKSHOT::Data()
+{
+	return TKData;
+}
+
+unsigned int TKSHOT::GetTotalTraceNumber()
+{
+	return total_trace_number;
+}
+
+TKDATA& TKSHOT::Data(unsigned int n)
+{
+	return TKData.at(getADCDataIndexByADCID(n));
+}
+
+//std::vector<TKDATA>::iterator TKSHOT::operator [](unsigned int n) {
+//	return TKData.at(getADCDataIndexByADCID(n));
+//}
+//std::vector<TKDATA>::iterator TKSHOT::operator [](const unsigned int n) {
+//	return TKData.at(getADCDataIndexByADCID(n));
+//}
