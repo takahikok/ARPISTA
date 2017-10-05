@@ -35,7 +35,7 @@ public:
 		TRACE,
 		BLOCK
 	};
-	enum RECORDLENGTH : unsigned int
+	enum class RECORDLENGTH : unsigned int
 	{
 		_1k = 1000,
 		_2_5k = 2500,
@@ -54,7 +54,7 @@ public:
 		_50M = 50000000,
 		_100M = 100000000,
 	};
-	enum BANDWIDTH : unsigned int
+	enum class BANDWIDTH : unsigned int
 	{
 		_10kHz = 10000,
 		_20kHz = 20000,
@@ -67,19 +67,19 @@ public:
 		_2MHz = 2000000,
 		FULL,
 	};
-	enum COUPLING
+	enum class COUPLING
 	{
 		AC,
 		DC1MR,
 		DC50R,
 	};
-	enum ATTENUATOR : unsigned int
+	enum class ATTENUATOR : unsigned int
 	{
 		_1_1 = 1,
 		_1_10 = 10,
 		_1_1000 = 1000,
 	};
-	enum VDIV : unsigned int
+	enum class VDIV : unsigned int
 	{
 		_1mV_div = 1,
 		_2mV_div = 2,
@@ -99,15 +99,16 @@ public:
 		_100V_div = 100000,
 		_200V_div = 200000,
 	};
-	enum SAMPLINGRATE : unsigned int
+	enum class SAMPLINGRATE : unsigned int
 	{
 		_5 = 5,
 		_10 = 10,
 		_100 = 100,
 	};
-	enum SOURCE
+	enum class CHANNEL : unsigned int
 	{
-		CH1,
+		NA = 0,
+		CH1 = 1,
 		CH2,
 		CH3,
 		CH4,
@@ -123,10 +124,10 @@ public:
 		CH14,
 		CH15,
 		CH16,
-		EXTERNAL,
+		EXTERNAL = 100,
 	};
 	//:TRIGger:SIMPle:SOURce
-	enum SLOPE
+	enum class SLOPE
 	{
 		FALL, RISE
 	};

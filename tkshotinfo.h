@@ -40,16 +40,16 @@ class TKDATA
 {
 
 private:
-	int adc_id;
+	unsigned int adc_id;
 
 	std::string data_file_name;
 
-	int trace_total_number;
+	unsigned int trace_total_number;
 
 	std::string model_name;
 	TKADCCONST::BYTEORDER byte_order;
 	TKADCCONST::DATAFORMAT data_format;
-	int data_offset;
+	unsigned int data_offset;
 
 	/**
 	* @struct CHDATA
@@ -58,7 +58,7 @@ private:
 	struct CHDATA
 	{
 		//! チャンネル番号
-		int ch_number;
+		TKADCCONST::CHANNEL ch_number;
 		//! ラベル名
 		std::string trace_name;
 		//! 量子化単位 (LSB)
@@ -66,17 +66,20 @@ private:
 		//! オフセット電圧
 		float v_offset;
 		//! 
-		int v_max_data;
+		unsigned int v_max_data;
 		//! 
-		int v_min_data;
+		unsigned int v_min_data;
 		//! サンプリング時間 (時間分解能)
 		float h_resolution;
 		//! オフセット時間
 		float h_offset;
 		//! ブロックサイズ
-		int block_size;
+		unsigned int block_size;
 		//! 時刻 (どの時刻かはADCによって異なる)
 		struct std::tm time;
+		//! 推測値
+		//! V/Div
+		TKADCCONST::VDIV v_div;
 	};
 	//! チャンネルデータ
 	std::vector<TKDATA::CHDATA> CHData;
@@ -84,11 +87,11 @@ private:
 	//! チャンネル番号からトレース番号への変換マトリックス。インターフェース関数ChannnelNumberToTraceNumber()を使用してください。
 	int channel_number_to_trace_number[TKADC_ADC_CHANNEL_MAX];
 
-	inline void readHDRLineString(std::string buf, int trace_number, char* key_name, std::string* odata);
-	template<typename T> int readHDRLine(std::string buf, int trace_number, char* key_name, T* data);
-	int readHDRLine(std::string buf, int trace_number, char* key_name, float* data);
-	int readHDRLine(std::string buf, int trace_number, char* key_name, int* data);
-	int readHDRLine(std::string buf, int trace_number, char* key_name, struct std::tm* data);
+	inline void readHDRLineString(std::string buf, unsigned int trace_number, char* key_name, std::string* odata);
+	template<typename T> void readHDRLine(std::string buf, unsigned int trace_number, char* key_name, T* data);
+	void readHDRLine(std::string buf, unsigned int trace_number, char* key_name, float* data);
+	void readHDRLine(std::string buf, unsigned int trace_number, char* key_name, int* data);
+	void readHDRLine(std::string buf, unsigned int trace_number, char* key_name, struct std::tm* data);
 	/**
 	* @fn traceNameToCHNumber
 	* @blief ラベル名からチャンネル番号を推定します。
@@ -105,13 +108,13 @@ private:
 	* @warning
 	*	この仕様によりADCのラベル名を変更することはできません。
 	*/
-	int traceNameToCHNumber(std::string trace_name);
+	TKADCCONST::CHANNEL traceNameToCHNumber(std::string trace_name);
 
 	//! point data (ARPISTA)
 	//! [0]:time, [1]:CH1, ... データはeveryだけ間引かれている
 	std::vector<std::vector<double> > points;
 	unsigned int every;
-//	bool is_empty;
+	TKADCCONST::VDIV v_resolutionToV_div(float v_resolution);
 
 public:
 	TKDATA();
@@ -123,16 +126,16 @@ public:
 	* @return 0:
 	*	正常終了
 	*/
-	int ParseHDR();
-	int SetADCID(int iadc_id);
-	int GetADCID();
-	int SetDataFileName(std::string idata_file_name);
+	void ParseHDR();
+	void SetADCID(unsigned int const iadc_id);
+	unsigned int GetADCID();
+	void SetDataFileName(std::string idata_file_name);
 	std::string GetDataFileName();
 	float GetHResolution();
 	float GetVOffset(int const trace_index);
 	float GetVResolution(int const trace_index);
-	int GetVMaxData(int const trace_index);
-	int GetVMinData(int const trace_index);
+	unsigned int GetVMaxData(int const trace_index);
+	unsigned int GetVMinData(int const trace_index);
 	unsigned int GetBlockSize();
 	struct std::tm GetTime();
 	float GetHOffset();
@@ -141,14 +144,6 @@ public:
 	TKADCCONST::DATAFORMAT GetDataFormat();
 	int GetDataOffset();
 	unsigned int GetTraceNumber();
-//	int ChannnelNumberToTraceNumber(int const channel_number)
-//	{
-//		return channel_number_to_trace_number[channel_number];
-//	}
-//	int GetChannelNumber(int const trace_index)
-//	{
-//		return CHData[trace_index].ch_number;
-//	}
 
 	//! ARPISTA
 	std::vector<std::vector<double> >* GetDataPointsPtr();
@@ -156,13 +151,6 @@ public:
 	unsigned int GetEvery();
 	unsigned int LoadDataPoints(unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX);
 	std::vector<std::vector<double> >& GetDataPoints();
-//	bool& IsEmpty()
-//	{
-//		return TKDATA::is_empty;
-//	}
-
-
-
 };
 
 /**
@@ -195,38 +183,14 @@ public:
 //	std::vector<TKDATA>::iterator operator [](const unsigned int n);
 
 	unsigned int GetADCNumber();
-//	std::string GetDataFileName(int adc_id);
 
 	int NameShotNumber(int ishot_number);
 	int Clear();
 	int AppendDataFile(std::string data_file_name);
-//	float GetHResolution(int adc_id);
-//	int GetBlockSize(int adc_id);
-//	float GetVOffset(int adc_id, int trace_index);
-//	float GetVResolution(int adc_id, int trace_index);
-//	int GetVMaxData(int adc_id, int trace_index);
-//	int GetVMinData(int adc_id, int trace_index);
-//	float GetHOffset(int adc_id);
-//	std::string GetModelName(int adc_id);
-//	struct std::tm GetTime(int adc_id);
-//	TKADCCONST::BYTEORDER GetByteOrder(int adc_id);
-//	TKADCCONST::DATAFORMAT GetDataFormat(int adc_id);
-//	int GetDataOffset(int adc_id);
-//	// Function name changed TKSHOT::GetTraceTotalNumber() to TKSHOT::GetTraceNumber()
-//	unsigned int GetTraceNumber(int adc_id);
 	int ADCIDToADCDataIndex(int adc_id);
 	unsigned int GetADCID(int adc_index);
-////	int GetChannelNumber(int adc_id, int trace_index)
-////	{
-////		return TKData[getADCDataIndexByADCID(adc_id)].GetChannelNumber(trace_index);
-////	}
 
-//	//! ARPISTA
-//	unsigned int SetEvery(int adc_id, unsigned int const every);
-//	unsigned int GetEvery(int adc_id);
-//	unsigned int LoadDataPoints(int adc_id, unsigned int every = 0, unsigned int start_position = 0, unsigned int point_number = UINT_MAX);
-//	std::vector<std::vector<double> >* GetDataPointsPtr(int adc_id);
-//	std::vector<std::vector<double> >& GetDataPoints(int adc_id);
+	//! ARPISTA
 	std::vector<TKDATA>& Data();
 	unsigned int GetTotalTraceNumber();
 	TKDATA& Data(unsigned int n);

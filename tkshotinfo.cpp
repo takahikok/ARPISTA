@@ -1,7 +1,7 @@
 ﻿#include "tkshotinfo.h"
 #define _CRT_NONSTDC_NO_WARNINGS
 
-inline void TKDATA::readHDRLineString(std::string buf, int trace_number, char* key_name, std::string* odata)
+inline void TKDATA::readHDRLineString(std::string buf, unsigned int trace_number, char* key_name, std::string* odata)
 {
 	char data[4][256];
 	switch (trace_number) {
@@ -18,35 +18,32 @@ inline void TKDATA::readHDRLineString(std::string buf, int trace_number, char* k
 		std::sscanf(buf.c_str(), "%s %s %s %s %s", key_name, &(data[0]), &(data[1]), &(data[2]), &(data[3]));
 		break;
 	}
-	for (int i = 0; i < trace_number; i++)
+	for (unsigned int i = 0; i < trace_number; i++)
 		odata[i] = (std::string)data[i];
 }
-template<typename T> int TKDATA::readHDRLine(std::string buf, int trace_number, char* key_name, T* data)
+template<typename T> void TKDATA::readHDRLine(std::string buf, unsigned int trace_number, char* key_name, T* data)
 {
 	readHDRLineString(buf, trace_number, key_name, data);
-	return 0;
 }
-int TKDATA::readHDRLine(std::string buf, int trace_number, char* key_name, float* data)
+void TKDATA::readHDRLine(std::string buf, unsigned int trace_number, char* key_name, float* data)
 {
 	std::string idata[4];
 	readHDRLineString(buf, trace_number, key_name, idata);
-	for (int i = 0; i < trace_number; i++)
+	for (unsigned int i = 0; i < trace_number; i++)
 		data[i] = std::stof(idata[i], NULL);
-	return 0;
 }
-int TKDATA::readHDRLine(std::string buf, int trace_number, char* key_name, int* data)
+void TKDATA::readHDRLine(std::string buf, unsigned int trace_number, char* key_name, int* data)
 {
 	std::string idata[4];
 	readHDRLineString(buf, trace_number, key_name, idata);
-	for (int i = 0; i < trace_number; i++)
+	for (unsigned int i = 0; i < trace_number; i++)
 		data[i] = std::stoi(idata[i], NULL, 10);
-	return 0;
 }
-int TKDATA::readHDRLine(std::string buf, int trace_number, char* key_name, struct std::tm* data)
+void TKDATA::readHDRLine(std::string buf, unsigned int trace_number, char* key_name, struct std::tm* data)
 {
 	std::string idata[4];
 	readHDRLineString(buf, trace_number, key_name, idata);
-	for (int i = 0; i < trace_number; i++, data) {
+	for (unsigned int i = 0; i < trace_number; i++, data) {
 		std::stringstream ss;
 		std::string ibuf;
 		ss << idata[i];
@@ -64,21 +61,18 @@ int TKDATA::readHDRLine(std::string buf, int trace_number, char* key_name, struc
 			(data + i)->tm_min = std::stoi(ibuf);
 			std::getline(ss, ibuf, ':');
 			(data + i)->tm_sec = (int)std::stof(ibuf);
-		} else {
-			return -1;
 		}
 	}
-	return 0;
 }
 
-int TKDATA::ParseHDR()
+void TKDATA::ParseHDR()
 {
 	std::ifstream ifs(data_file_name + ".HDR");
 	std::string buf;
-	for (int lines = 1, trace_number_offset = 0, force_break = 0;
-		!force_break && std::getline(ifs, buf); lines++) {
-		int group_number;
-		int trace_number;
+	for (unsigned int lines = 1, trace_number_offset = 0;
+	     std::getline(ifs, buf); lines++) {
+		unsigned int group_number;
+		unsigned int trace_number;
 		char key_name[64];
 		int idata[4];
 		float fdata[4];
@@ -180,12 +174,12 @@ int TKDATA::ParseHDR()
 		case 55:
 		case 75:
 			readHDRLine(buf, trace_number, key_name, sdata);
-			for (int i = 0; i < trace_number; i++) {
+			for (unsigned int i = 0; i < trace_number; i++) {
 				CHData[trace_number_offset + i].trace_name = sdata[i];
 				//TraceNameからADCチャンネルを推測(HDRパースには不要)
 				CHData[trace_number_offset + i].ch_number = traceNameToCHNumber(sdata[i]);
-				if (CHData[trace_number_offset + i].ch_number)
-					channel_number_to_trace_number[CHData[trace_number_offset + i].ch_number]
+				if (CHData[trace_number_offset + i].ch_number != TKADCCONST::CHANNEL::NA)
+					channel_number_to_trace_number[static_cast<unsigned int>(CHData[trace_number_offset + i].ch_number)]
 					= trace_number_offset + i;
 			}
 			break;
@@ -196,7 +190,7 @@ int TKDATA::ParseHDR()
 		case 56:
 		case 76:
 			readHDRLine(buf, trace_number, key_name, idata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].block_size = idata[i];
 			break;
 
@@ -206,7 +200,7 @@ int TKDATA::ParseHDR()
 		case 57:
 		case 77:
 			readHDRLine(buf, trace_number, key_name, fdata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].v_resolution = fdata[i];
 			break;
 
@@ -216,7 +210,7 @@ int TKDATA::ParseHDR()
 		case 58:
 		case 78:
 			readHDRLine(buf, trace_number, key_name, fdata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].v_offset = fdata[i];
 			break;
 
@@ -226,7 +220,7 @@ int TKDATA::ParseHDR()
 		case 64:
 		case 84:
 			readHDRLine(buf, trace_number, key_name, idata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].v_max_data = idata[i];
 			break;
 
@@ -236,7 +230,7 @@ int TKDATA::ParseHDR()
 		case 65:
 		case 85:
 			readHDRLine(buf, trace_number, key_name, idata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].v_min_data = idata[i];
 			break;
 
@@ -246,7 +240,7 @@ int TKDATA::ParseHDR()
 		case 66:
 		case 86:
 			readHDRLine(buf, trace_number, key_name, fdata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].h_resolution = fdata[i];
 			break;
 
@@ -256,7 +250,7 @@ int TKDATA::ParseHDR()
 		case 67:
 		case 87:
 			readHDRLine(buf, trace_number, key_name, fdata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].h_offset = fdata[i];
 			break;
 
@@ -271,7 +265,7 @@ int TKDATA::ParseHDR()
 		case 70:
 		case 90:
 			readHDRLine(buf, trace_number, key_name, tmdata);
-			for (int i = 0; i < trace_number; i++)
+			for (unsigned int i = 0; i < trace_number; i++)
 				CHData[trace_number_offset + i].time = tmdata[i];
 			break;
 
@@ -281,28 +275,25 @@ int TKDATA::ParseHDR()
 		case 71:
 		case 91:
 			if (trace_number_offset + trace_number >= trace_total_number)
-				force_break = 1;
+				return;
 			break;
 		}
 	}
-	return 0;
 }
 
-int TKDATA::SetADCID(int iadc_id)
+void TKDATA::SetADCID(unsigned int const iadc_id)
 {
 	adc_id = iadc_id;
-	return 0;
 }
 
-int TKDATA::GetADCID()
+unsigned int TKDATA::GetADCID()
 {
 	return adc_id;
 }
 
-int TKDATA::SetDataFileName(std::string idata_file_name)
+void TKDATA::SetDataFileName(std::string idata_file_name)
 {
 	data_file_name = idata_file_name;
-	return 0;
 }
 
 std::string TKDATA::GetDataFileName()
@@ -325,12 +316,12 @@ float TKDATA::GetVResolution(const int trace_index)
 	return CHData[trace_index].v_resolution;
 }
 
-int TKDATA::GetVMaxData(const int trace_index)
+unsigned int TKDATA::GetVMaxData(const int trace_index)
 {
 	return CHData[trace_index].v_max_data;
 }
 
-int TKDATA::GetVMinData(const int trace_index)
+unsigned int TKDATA::GetVMinData(const int trace_index)
 {
 	return CHData[trace_index].v_min_data;
 }
@@ -436,12 +427,17 @@ std::vector<std::vector<double> >&TKDATA::GetDataPoints()
 {
 	return points;
 }
-int TKDATA::traceNameToCHNumber(std::string trace_name)
+TKADCCONST::CHANNEL TKDATA::traceNameToCHNumber(std::string trace_name)
 {
-	for (int i = 1; i < 100; i++)
+	for (unsigned int i = 1; i < 100; i++)
 		if (trace_name == ("CH" + std::to_string(i)))
-			return i;
-	return 0;
+			return static_cast<TKADCCONST::CHANNEL>(i);
+	return TKADCCONST::CHANNEL::NA;
+}
+
+TKADCCONST::VDIV TKDATA::v_resolutionToV_div(float v_resolution)
+{
+	return TKADCCONST::VDIV::_1V_div;
 }
 
 TKDATA::TKDATA()
@@ -468,11 +464,6 @@ unsigned int TKSHOT::GetADCNumber()
 	return adc_num;
 }
 
-//std::string TKSHOT::GetDataFileName(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataFileName();
-//}
-
 int TKSHOT::NameShotNumber(int ishot_number)
 {
 	shot_number = ishot_number;
@@ -497,85 +488,11 @@ int TKSHOT::AppendDataFile(std::string data_file_name)
 	this_data->SetADCID(adc_num - 1);
 	this_data->SetDataFileName(data_file_name);
 	this_data->ParseHDR();
-	//		this_data->IsEmpty() = true;
 
 	total_trace_number += this->Data(adc_num - 1).GetTraceNumber();
 
 	return adc_num-1;
-	/*
-		adc_num++;
-		TKData.push_back(TKDATA::TKDATA());
-		TKData[adc_num - 1].SetADCID(adc_id);
-		TKData[adc_num - 1].SetDataFileName(data_file_name);
-		TKData[adc_num - 1].ParseHDR();
-		return 0;
-		*/
 }
-
-//float TKSHOT::GetHResolution(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetHResolution();
-//}
-
-//int TKSHOT::GetBlockSize(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetBlockSize();
-//}
-
-//float TKSHOT::GetVOffset(int adc_id, int trace_index)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetVOffset(trace_index);
-//}
-
-//float TKSHOT::GetVResolution(int adc_id, int trace_index)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetVResolution(trace_index);
-//}
-
-//int TKSHOT::GetVMaxData(int adc_id, int trace_index)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetVMaxData(trace_index);
-//}
-
-//int TKSHOT::GetVMinData(int adc_id, int trace_index)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetVMinData(trace_index);
-//}
-
-//float TKSHOT::GetHOffset(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetHOffset();
-//}
-
-//std::string TKSHOT::GetModelName(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetModelName();
-//}
-
-//tm TKSHOT::GetTime(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetTime();
-//}
-
-//TKADCCONST::BYTEORDER TKSHOT::GetByteOrder(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetByteOrder();
-//}
-
-//TKADCCONST::DATAFORMAT TKSHOT::GetDataFormat(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataFormat();
-//}
-
-//int TKSHOT::GetDataOffset(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataOffset();
-//}
-
-//unsigned int TKSHOT::GetTraceNumber(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetTraceNumber();
-//}
 
 int TKSHOT::ADCIDToADCDataIndex(int adc_id)
 {
@@ -586,31 +503,6 @@ unsigned int TKSHOT::GetADCID(int adc_index)
 {
 	return TKData[adc_index].GetADCID();
 }
-
-//unsigned int TKSHOT::SetEvery(int adc_id, const unsigned int every)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].SetEvery(every);
-//}
-
-//unsigned int TKSHOT::GetEvery(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetEvery();
-//}
-
-//unsigned int TKSHOT::LoadDataPoints(int adc_id, unsigned int every, unsigned int start_position, unsigned int point_number)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].LoadDataPoints(every, start_position, point_number);
-//}
-
-//std::vector<std::vector<double> >*TKSHOT::GetDataPointsPtr(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataPointsPtr();
-//}
-
-//std::vector<std::vector<double> >&TKSHOT::GetDataPoints(int adc_id)
-//{
-//	return TKData[getADCDataIndexByADCID(adc_id)].GetDataPoints();
-//}
 
 std::vector<TKDATA>& TKSHOT::Data()
 {
