@@ -1,4 +1,4 @@
-#include "plotrawwidget.h"
+﻿#include "plotrawwidget.h"
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
 #include <qwt_plot_grid.h>

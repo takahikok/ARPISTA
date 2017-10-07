@@ -1,6 +1,7 @@
 ﻿#ifndef TKADCCONST_H
 #define TKADCCONST_H
 
+#include <string>
 
 /**
 * @class TKADCCONST tkadcconst.h
@@ -81,6 +82,7 @@ public:
 	};
 	enum class VDIV : unsigned int
 	{
+		UNKNOWN = 0,
 		_1mV_div = 1,
 		_2mV_div = 2,
 		_5mV_div = 5,
@@ -99,6 +101,48 @@ public:
 		_100V_div = 100000,
 		_200V_div = 200000,
 	};
+	static std::string ToString(TKADCCONST::VDIV const v_div){
+		switch (v_div) {
+		case TKADCCONST::VDIV::_1mV_div:
+			return "1 mV/div";
+		case TKADCCONST::VDIV::_2mV_div:
+			return "2 mV/div";
+		case TKADCCONST::VDIV::_5mV_div:
+			return "5 mV/div";
+		case TKADCCONST::VDIV::_10mV_div:
+			return "10 mV/div";
+		case TKADCCONST::VDIV::_20mV_div:
+			return "20 mV/div";
+		case TKADCCONST::VDIV::_50mV_div:
+			return "50 mV/div";
+		case TKADCCONST::VDIV::_100mV_div:
+			return "100 mV/div";
+		case TKADCCONST::VDIV::_200mV_div:
+			return "200 mV/div";
+		case TKADCCONST::VDIV::_500mV_div:
+			return "500 mV/div";
+		case TKADCCONST::VDIV::_1V_div:
+			return "1 V/div";
+		case TKADCCONST::VDIV::_2V_div:
+			return "2 V/div";
+		case TKADCCONST::VDIV::_5V_div:
+			return "5 V/div";
+		case TKADCCONST::VDIV::_10V_div:
+			return "10 V/div";
+		case TKADCCONST::VDIV::_20V_div:
+			return "20 V/div";
+		case TKADCCONST::VDIV::_50V_div:
+			return "50 V/div";
+		case TKADCCONST::VDIV::_100V_div:
+			return "100 V/div";
+		case TKADCCONST::VDIV::_200V_div:
+			return "200 V/div";
+		case TKADCCONST::VDIV::UNKNOWN:
+		default:
+			return "N/A";
+		}
+	}
+
 	enum class SAMPLINGRATE : unsigned int
 	{
 		_5 = 5,

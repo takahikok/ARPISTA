@@ -102,6 +102,9 @@ ChildWindow* MainWindow::createChildandOpenLocal()
 		childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i)->setSizeHint(adcChannelControlWidgetItemItem->sizeHint());
 		ui->listWidget_ADCChannelControl->setItemWidget(childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i), adcChannelControlWidgetItemItem);
 		adcChannelControlWidgetItemItem->SetParentWidgetItem(childWindow->GetAdcChannelControlWidgetItemListPtr()->at(i));
+
+		adcChannelControlWidgetItemItem->SetFreezeControls(true);
+		adcChannelControlWidgetItemItem->SetCurrentV_div(thisShot->TotalTraceIndexToCh(i).GetV_div());
 	}
 
 	return childWindow;

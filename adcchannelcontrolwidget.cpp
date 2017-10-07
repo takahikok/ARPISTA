@@ -63,6 +63,24 @@ QListWidgetItem* ADCChannelControlWidget::GetParentWidgetItem()
 	return parent_widget_item;
 }
 
+void ADCChannelControlWidget::SetFreezeControls(const bool flag)
+{
+	is_freeze_controls = !flag;
+	ui->comboBox->setEnabled(is_freeze_controls);
+	ui->comboBox_2->setEnabled(is_freeze_controls);
+	ui->comboBox_3->setEnabled(is_freeze_controls);
+}
+
+bool ADCChannelControlWidget::GetFreezeControls()
+{
+	return is_freeze_controls;
+}
+
+void ADCChannelControlWidget::SetCurrentV_div(TKADCCONST::VDIV const v_div)
+{
+	ui->comboBox->addItem(TKADCCONST::ToString(v_div).c_str());
+}
+
 void ADCChannelControlWidget::switchExpansionStateSlot()
 {
 	this->SwitchExpansionState();
